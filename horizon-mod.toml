@@ -1,0 +1,36 @@
+# "recipes" is the id the game's item panel treats as the recipe viewer: it is the only
+# panel shown in the Creative inventory, and Escape / a recipe transfer close its pages.
+id = "recipes"
+name = "Enough Items"
+version = "0.1.0"
+description = "JEI for Horizon: every item in a panel beside the inventory, with search; R or left click shows how an item is made, U or right click what it is used for."
+authors = ["Ish"]
+license = "MIT"
+api = "0.2"
+side = "client"
+capabilities = ["registries"]
+
+[native]
+game = "26.3"
+horizon = "2b77287de099c9316278ba7ac4d83590fdb7ef30"
+mixins = "e59da9094f0c2fdda6c627fe9eff22dec6a906f0"
+
+[[native.module]]
+id = "viewer"
+file = "crates/horizon-client/src/game.rs"
+name = "enough_items"
+source = "src/viewer.rs"
+
+[[native.mixin]]
+id = "tick"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::client_tick_post::Game::native_client_tick_post"
+helper = "src/mixins/tick.rs"
+bindings = [{name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self"}]
+
+[[native.mixin]]
+id = "panel"
+kind = "HEAD"
+target = "horizon_client::game::native_hooks::base::Game::native_panel_event"
+helper = "src/mixins/panel.rs"
+bindings = [{name = "game", ty = "&mut crate::game::Game<'_>", value = "&mut *self"}, {name = "mod_id", ty = "&str", value = "mod_id"}, {name = "event", ty = "&mod_api::PanelEvent", value = "event"}]
